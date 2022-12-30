@@ -13,7 +13,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     DB_HOST = os.getenv("DB_HOST")
     DB_PORT = int(os.getenv("DB_PORT"))
     DB_PASSWORD = os.getenv("DB_PASSWORD")
-    return func.HttpResponse("PASO ENV VARS", status_code=200)
 
     if None in [DB_DATABASE,DB_USER,DB_HOST,DB_PORT,DB_PASSWORD]:
         return func.HttpResponse("Undefined environment variables", status_code=500)
@@ -25,7 +24,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             host = DB_HOST,
             port = DB_PORT,
             password = DB_PASSWORD,
-            database = DB_DATABASE
+            database = DB_DATABASE,
+            ssl_disabled=False
         )
         resp = "json.dumps(resp_body)"
     except mysql.connector.Error as err:
@@ -41,3 +41,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         cnx.close()
 
     return func.HttpResponse(resp, status_code=status_code)
+
+
+#cnx = mysql.connector.connect(user="dbroot", password="{your_password}", host="tarea10db.mysql.database.azure.com", port=3306, database="{your_database}", ssl_ca="{ca-cert filename}", ssl_disabled=False)
