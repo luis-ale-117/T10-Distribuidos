@@ -110,7 +110,7 @@ listaArticulos.addEventListener('click',(e)=>{
         idArticulo = divArticuloBody.dataset.id
         cantidad = divArticuloBody.children[5].value
         console.log(`Compra id:${idArticulo}, cantidad: ${cantidad}`)
-        fetch('/Servicio/rest/ws/compra_articulo', {
+        fetch('/api/T10-2020630326', {
             method: 'POST',
             body: JSON.stringify({id: idArticulo,cantidad: cantidad}),
             headers : {'Content-Type': 'application/json'}
@@ -166,7 +166,7 @@ formCapturaArticulo.addEventListener('submit', (e) => {
     }).then((ok) => {
         if (ok) {
             //Intenta la captura
-            fetch('/Servicio/rest/ws/alta_articulo', {
+            fetch('/api/T10-2020630326', {
                 method: 'POST',
                 body: JSON.stringify({articulo: articulo}),
                 headers : {'Content-Type': 'application/json'}
@@ -207,7 +207,7 @@ formBuscaArticulo.addEventListener('submit',(e) => {
     patron = formBuscaArticulo.buscaArticulo.value
     console.log({patron})
     //Obtener los articulos
-    fetch('/Servicio/rest/ws/busca_articulos', {
+    fetch('/api/T10-2020630326', {
         method: 'POST',
         body: JSON.stringify({patron: patron}),
         headers : {'Content-Type': 'application/json'}
@@ -322,7 +322,7 @@ btnConsultaCarrito.addEventListener('click',(e) => {
         primer = articulosCarrito.firstElementChild;
     }
     //Obtener los articulos
-    fetch('/Servicio/rest/ws/consulta_carrito', {
+    fetch('/api/T10-2020630326', {
         method: 'POST',
         body: JSON.stringify({}),
         headers : {'Content-Type': 'application/json'}
@@ -417,7 +417,7 @@ btnVaciarCarrito.addEventListener('click', (e) => {
     }).then((ok) => {
         if (ok) {
             //Intenta la captura
-            fetch('/Servicio/rest/ws/elimina_carrito', {
+            fetch('/api/T10-2020630326', {
                 method: 'POST',
                 body: JSON.stringify({}),
                 headers : {'Content-Type': 'application/json'}
@@ -456,7 +456,7 @@ articulosCarrito.addEventListener('click',(e)=> {
         divArticuloBody = e.target.parentElement
         idArticulo = divArticuloBody.dataset.id
         console.log(`Borrar del carrito id:${idArticulo}`)
-        fetch('/Servicio/rest/ws/borra_articulo_carrito', {
+        fetch('/api/T10-2020630326', {
             method: 'POST',
             body: JSON.stringify({id: idArticulo}),
             headers : {'Content-Type': 'application/json'}
