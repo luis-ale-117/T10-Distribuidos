@@ -11,7 +11,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
     DB_DATABASE = os.getenv("DB_DATABASE")
     DB_USER = os.getenv("DB_USER")
     DB_HOST = os.getenv("DB_HOST")
-    DB_PORT = os.getenv("DB_PORT")
+    DB_PORT = int(os.getenv("DB_PORT"))
     DB_PASSWORD = os.getenv("DB_PASSWORD")
 
     if None in [DB_DATABASE,DB_USER,DB_HOST,DB_PORT,DB_PASSWORD]:
@@ -27,7 +27,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             database = DB_DATABASE
         )
         resp_body = req.get_json()
-        resp = json.dumps(resp_body)
+        resp = "json.dumps(resp_body)"
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
             resp = "Something is wrong with your user name or password"
