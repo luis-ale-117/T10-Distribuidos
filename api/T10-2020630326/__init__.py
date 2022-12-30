@@ -16,6 +16,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     if None in [DB_DATABASE,DB_USER,DB_HOST,DB_PORT,DB_PASSWORD]:
         return func.HttpResponse("Undefined environment variables", status_code=500)
+    return func.HttpResponse(resp, status_code=status_code)
     resp = None
     status_code = 200
     try:
