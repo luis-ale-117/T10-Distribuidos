@@ -27,11 +27,29 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             database = DB_DATABASE,
             ssl_disabled=False
         )
+        # Devuelve un GET, POST, DELETE, PUT, ...
+        # Buscar por keyword
         resp_body = req.get_json()
-        if isinstance(resp_body, dict):
-            resp_body["method"] = req.method
-        elif isinstance(resp_body, list):
-            resp_body.append(req.method)
+        resp_body["method"] = req.method
+        if req.method == "POST":
+            if resp_body.get("action")=="captura-articulo":
+                resp_body["status"] = "Capturado"
+            elif resp_body.get("action")=="compra-articulo":
+                resp_body["status"] = "Comprado"
+            elif resp_body.get("action")=="buscar-articulo":
+                resp_body["status"] = "Buscado"
+            elif resp_body.get("action")=="ver-carrito":
+                resp_body["status"] = "Carrito"
+            elif rresp_body.get("action")=="elimina-articulo":
+                resp_body["status"] = "Elimina articulo"
+            elif resp_body.get("action")=="elimina-carrito":
+                resp_body["status"] = "Elimina carrito"
+            else:
+                resp_body["status"] = "Accion invalida"
+        else:
+            resp_body["status"] = "Metodo invalido"
+            status_code = 400
+
         resp = json.dumps(resp_body)
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:

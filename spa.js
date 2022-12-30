@@ -112,7 +112,7 @@ listaArticulos.addEventListener('click',(e)=>{
         console.log(`Compra id:${idArticulo}, cantidad: ${cantidad}`)
         fetch('/api/T10-2020630326', {
             method: 'POST',
-            body: JSON.stringify({id: idArticulo,cantidad: cantidad}),
+            body: JSON.stringify({action:"compra-articulo",id: idArticulo,cantidad: cantidad}),
             headers : {'Content-Type': 'application/json'}
         })
         .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
@@ -168,7 +168,7 @@ formCapturaArticulo.addEventListener('submit', (e) => {
             //Intenta la captura
             fetch('/api/T10-2020630326', {
                 method: 'POST',
-                body: JSON.stringify({articulo: articulo}),
+                body: JSON.stringify({action:"captura-articulo",articulo: articulo}),
                 headers : {'Content-Type': 'application/json'}
             })
             .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
@@ -209,7 +209,7 @@ formBuscaArticulo.addEventListener('submit',(e) => {
     //Obtener los articulos
     fetch('/api/T10-2020630326', {
         method: 'POST',
-        body: JSON.stringify({patron: patron}),
+        body: JSON.stringify({action:"buscar-articulo",patron: patron}),
         headers : {'Content-Type': 'application/json'}
     })
     .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
@@ -324,7 +324,7 @@ btnConsultaCarrito.addEventListener('click',(e) => {
     //Obtener los articulos
     fetch('/api/T10-2020630326', {
         method: 'POST',
-        body: JSON.stringify({}),
+        body: JSON.stringify({action:"ver-carrito"}),
         headers : {'Content-Type': 'application/json'}
     })
     .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
@@ -419,7 +419,7 @@ btnVaciarCarrito.addEventListener('click', (e) => {
             //Intenta la captura
             fetch('/api/T10-2020630326', {
                 method: 'POST',
-                body: JSON.stringify({}),
+                body: JSON.stringify({action:"elimina-carrito"}),
                 headers : {'Content-Type': 'application/json'}
             })
             .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
@@ -458,7 +458,7 @@ articulosCarrito.addEventListener('click',(e)=> {
         console.log(`Borrar del carrito id:${idArticulo}`)
         fetch('/api/T10-2020630326', {
             method: 'POST',
-            body: JSON.stringify({id: idArticulo}),
+            body: JSON.stringify({action:"elimina-articulo",id: idArticulo}),
             headers : {'Content-Type': 'application/json'}
         })
         .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
