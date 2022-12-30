@@ -7,7 +7,9 @@ import json
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
+    return func.HttpResponse("OKOK", status_code=200)
     logging.info('Python HTTP trigger function processed a request.')
+    return func.HttpResponse(resp, status_code=status_code)
     DB_DATABASE = os.getenv("DB_DATABASE")
     DB_USER = os.getenv("DB_USER")
     DB_HOST = os.getenv("DB_HOST")
@@ -16,7 +18,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     if None in [DB_DATABASE,DB_USER,DB_HOST,DB_PORT,DB_PASSWORD]:
         return func.HttpResponse("Undefined environment variables", status_code=500)
-    return func.HttpResponse(resp, status_code=status_code)
     resp = None
     status_code = 200
     try:
