@@ -26,7 +26,6 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             password = DB_PASSWORD,
             database = DB_DATABASE
         )
-        resp_body = req.get_json()
         resp = "json.dumps(resp_body)"
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
@@ -34,7 +33,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         elif err.errno == errorcode.ER_BAD_DB_ERROR:
             resp = "Database does not exist"
         else:
-            resp = str(err)
+            resp = "Un error "+ str(err)
         logging.error(resp)
         status_code = 500
     else:
