@@ -27,7 +27,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             database = DB_DATABASE,
             ssl_disabled=False
         )
-        resp = "json.dumps(resp_body)"
+        resp_body = req.get_json()
+        resp = json.dumps(resp_body)
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
             resp = "Something is wrong with your user name or password"
@@ -41,6 +42,3 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         cnx.close()
 
     return func.HttpResponse(resp, status_code=status_code)
-
-
-#cnx = mysql.connector.connect(user="dbroot", password="{your_password}", host="tarea10db.mysql.database.azure.com", port=3306, database="{your_database}", ssl_ca="{ca-cert filename}", ssl_disabled=False)
