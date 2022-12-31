@@ -131,7 +131,7 @@ listaArticulos.addEventListener('click',(e)=>{
                 console.log("Solicitud fallida ",data)
                 swal("Oops ocurrio un error grave",{
                         icon: "error",
-                        text: "Solicitud fallida: "+data.message
+                        text: "Solicitud fallida: "+data.status
                 })
             })
             .catch(_=>console.log("Error"))
@@ -187,7 +187,7 @@ formCapturaArticulo.addEventListener('submit', (e) => {
                     console.log("Solicitud fallida ",data)
                     swal("Oops ocurrio un error grave",{
                             icon: "error",
-                            text: "Solicitud fallida: "+data.message
+                            text: "Solicitud fallida: "+data.status
                     })
                 })
                 .catch(_=>console.log("Error"))
@@ -303,7 +303,7 @@ formBuscaArticulo.addEventListener('submit',(e) => {
             console.log("Solicitud fallida ",data)
             swal("Oops ocurrio un error grave",{
                     icon: "error",
-                    text: "Solicitud fallida: "+data.message
+                    text: "Solicitud fallida: "+data.status
             })
         })
         .catch(_=>console.log("Error"))
@@ -400,7 +400,7 @@ btnConsultaCarrito.addEventListener('click',(e) => {
             console.log("Solicitud fallida ",data)
             swal("Oops ocurrio un error grave",{
                     icon: "error",
-                    text: "Solicitud fallida: "+data.message
+                    text: "Solicitud fallida: "+data.status
             })
         })
         .catch(_=>console.log("Error"))
@@ -438,7 +438,7 @@ btnVaciarCarrito.addEventListener('click', (e) => {
                     console.log("Solicitud fallida ",data)
                     swal("Oops ocurrio un error grave",{
                             icon: "error",
-                            text: "Solicitud fallida: "+data.message
+                            text: "Solicitud fallida: "+data.status
                     })
                 })
                 .catch(_=>console.log("Error"))
@@ -456,31 +456,41 @@ articulosCarrito.addEventListener('click',(e)=> {
         divArticuloBody = e.target.parentElement
         idArticulo = divArticuloBody.dataset.id
         console.log(`Borrar del carrito id:${idArticulo}`)
-        fetch('/api/T10-2020630326', {
-            method: 'POST',
-            body: JSON.stringify({action:"elimina-articulo",id: idArticulo}),
-            headers : {'Content-Type': 'application/json'}
-        })
-        .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
-        .then(res => res.json())
-        .then(data => {
-            console.log("Solicitud exitosa ", data)
-            swal("¡Articulo borrado del carrito!", {
-                icon: "success",
-                text: "¡Exito!"
-            });
-        })
-        .catch(err => {
-            console.log(err.status)
-            err.json()
-            .then(data => {
-                console.log("Solicitud fallida ",data)
-                swal("Oops ocurrio un error grave",{
-                        icon: "error",
-                        text: "Solicitud fallida: "+data.message
+        swal({
+            title: "¿Eliminar el articulo?",
+            text: "Eliminaras el articulo del carrito",
+            icon: "warning",
+            buttons: true,
+            dangerMode: true,
+        }).then((ok) => {
+            if (ok) {
+                fetch('/api/T10-2020630326', {
+                    method: 'POST',
+                    body: JSON.stringify({action:"elimina-articulo",id: idArticulo}),
+                    headers : {'Content-Type': 'application/json'}
                 })
-            })
-            .catch(_=>console.log("Error"))
-        })
+                .then(res => res.ok?Promise.resolve(res):Promise.reject(res))
+                .then(res => res.json())
+                .then(data => {
+                    console.log("Solicitud exitosa ", data)
+                    swal("¡Articulo borrado del carrito!", {
+                        icon: "success",
+                        text: "¡Exito!"
+                    });
+                })
+                .catch(err => {
+                    console.log(err.status)
+                    err.json()
+                    .then(data => {
+                        console.log("Solicitud fallida ",data)
+                        swal("Oops ocurrio un error grave",{
+                                icon: "error",
+                                text: "Solicitud fallida: "+data.status
+                        })
+                    })
+                    .catch(_=>console.log("Error"))
+                })
+            }
+        });
     }
 })

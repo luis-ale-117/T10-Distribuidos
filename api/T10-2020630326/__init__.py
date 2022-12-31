@@ -27,25 +27,29 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             database = DB_DATABASE,
             ssl_disabled=False
         )
-        # Devuelve un GET, POST, DELETE, PUT, ...
-        # Buscar por keyword
-        resp_body = req.get_json()
-        resp_body["method"] = req.method
+        
+        req_body = req.get_json()
         if req.method == "POST":
             if resp_body.get("action")=="captura-articulo":
-                resp_body["status"] = "Capturado"
+                articulo = req_body.get("articulo")
+                resp,status_code = captura_articulo(cnx, articulo)
             elif resp_body.get("action")=="compra-articulo":
-                resp_body["status"] = "Comprado"
+                id = req_body.get("id")
+                cantidad = req_body.get("cantidad")
+                resp,status_code = compra_articulo(cnx, id, cantidad)
             elif resp_body.get("action")=="buscar-articulo":
-                resp_body["status"] = "Buscado"
+                patron = req_body.get("patron")
+                resp,status_code = buscar_articulo(cnx, patron)
             elif resp_body.get("action")=="ver-carrito":
-                resp_body["status"] = "Carrito"
+                resp,status_code = ver_carrito(cnx)
             elif rresp_body.get("action")=="elimina-articulo":
-                resp_body["status"] = "Elimina articulo"
+                id = req_body.get("id")
+                resp,status_code = elimina_articulo(cnx, id)
             elif resp_body.get("action")=="elimina-carrito":
-                resp_body["status"] = "Elimina carrito"
+                resp,status_code = elimina_carrito(cnx)
             else:
                 resp_body["status"] = "Accion invalida"
+                status_code = 400
         else:
             resp_body["status"] = "Metodo invalido"
             status_code = 400
@@ -64,3 +68,194 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         cnx.close()
 
     return func.HttpResponse(resp, status_code=status_code, mimetype="application/json")
+
+def captura_articulo(cnx, articulo):
+    status_code = 200
+    result = {}
+    cursor = cnx.cursor()
+    try:
+        cursor.execute("START TRANSACTION")
+        query = ("INSERT INTO articulos (nombre, descripcion, precio, cantidad, foto) VALUES (%s, %s, %s, %s, %s)")
+        if articulo.get("nombre") is None or articulo.get("nombre") == "":
+            raise Exception("Nombre no especificado")
+        elif articulo.get("descripcion") is None or articulo.get("descripcion") == "":
+            raise Exception("Descripcion no especificada")
+        elif articulo.get("precio") is None or int(articulo.get("precio")) <= 0:
+            raise Exception("Precio no especificado")
+        elif articulo.get("cantidad") is None or int(articulo.get("cantidad")) <= 0:
+            raise Exception("Cantidad no especificada")
+        data = (articulo.get("nombre"), articulo.get("descripcion"), articulo.get("precio"), articulo.get("cantidad"), articulo.get("foto"))
+        cursor.execute(query, data)
+        cursor.execute("COMMIT")
+        result["status"] = "Articulo capturado"
+    except mysql.connector.Error as err:
+        logging.error(err)
+        cursor.execute("ROLLBACK")
+        result["status"] = "Error al capturar articulo"
+        status_code = 500
+    except Exception as err:
+        logging.error(err)
+        cursor.execute("ROLLBACK")
+        result["status"] = str(err)
+        status_code = 400
+    finally:
+        cursor.close()
+    return result, status_code
+
+def compra_articulo(cnx, id, cantidad):
+    status_code = 200
+    result = {}
+    cursor = cnx.cursor()
+    try:
+        cursor.execute("START TRANSACTION")
+        query = ("SELECT cantidad FROM articulos WHERE id = %s")
+        data = (id)
+        cursor.execute(query, data)
+        cantidad_articulo = cursor.fetchone()
+        if cantidad_articulo is None:
+            raise Exception("Articulo no encontrado")
+        elif cantidad_articulo[0] < cantidad:
+            raise Exception("No hay suficiente cantidad en inventario")
+        query = ("UPDATE articulos SET cantidad = cantidad - %s WHERE id = %s")
+        data = (cantidad, id)
+        cursor.execute(query, data)
+        query = ("INSERT INTO carrito_compra (id, cantidad) VALUES (%s, %s)")
+        data = (id, cantidad)
+        cursor.execute(query, data)
+        cursor.execute("COMMIT")
+        result["status"] = "Articulo agregado al carrito"
+    except mysql.connector.Error as err:
+        logging.error(err)
+        cursor.execute("ROLLBACK")
+        result["status"] = "Error al agregar articulo al carrito"
+        status_code = 500
+    except Exception as err:
+        logging.error(err)
+        cursor.execute("ROLLBACK")
+        result["status"] = str(err)
+        status_code = 400
+    finally:
+        cursor.close()
+    return result, status_code
+
+def buscar_articulo(cnx, patron):
+    status_code = 200
+    result = []
+    cursor = cnx.cursor()
+    try:
+        query = ("SELECT id,nombre,descripcion,precio,cantidad,foto FROM articulos WHERE nombre LIKE %s OR descripcion LIKE %s")
+        data = (f"%{patron}%", f"%{patron}%")
+        cursor.execute(query, data)
+        for (id, nombre, descripcion, precio, cantidad, foto) in cursor:
+            result.append({
+                "id": id,
+                "nombre": nombre,
+                "descripcion": descripcion,
+                "precio": precio,
+                "cantidad": cantidad,
+                "foto": foto
+            })
+    except mysql.connector.Error as err:
+        logging.error(err)
+        result = {}
+        result["status"] = "Error al buscar articulo"
+        status_code = 500
+    finally:
+        cursor.close()
+    return result, status_code
+
+def ver_carrito(cnx):
+    status_code = 200
+    result = []
+    cursor = cnx.cursor()
+    try:
+        query = ("SELECT id,nombre,descripcion,precio,cantidad,foto FROM articulos WHERE id IN (SELECT id FROM carrito_compra)")
+        cursor.execute(query)
+        for (id, nombre, descripcion, precio, cantidad, foto) in cursor:
+            result.append({
+                "id": id,
+                "nombre": nombre,
+                "descripcion": descripcion,
+                "precio": precio,
+                "cantidad": cantidad,
+                "foto": foto
+            })
+    except mysql.connector.Error as err:
+        logging.error(err)
+        result = {}
+        result["status"] = "Error al obtener carrito"
+        status_code = 500
+    finally:
+        cursor.close()
+    return result, status_code
+
+def elimina_articulo(cnx, id):
+    status_code = 200
+    result = {}
+    cursor = cnx.cursor()
+    try:
+        cursor.execute("START TRANSACTION")
+        # Revisa si el articulo existe en la tabla articulos
+        query = ("SELECT id FROM articulos WHERE id = %s")
+        data = (id)
+        cursor.execute(query, data)
+        if cursor.fetchone() is None:
+            raise Exception("Articulo no encontrado")
+        # Revisa si el articulo existe en el carrito y obtiene la cantidad
+        query = ("SELECT id,cantidad FROM carrito_compra WHERE id = %s")
+        data = (id)
+        cursor.execute(query, data)
+        r = cursor.fetchone()
+        if r is None:
+            raise Exception("Articulo no encontrado en carrito")
+        _, cantidad_carrito = r
+        # Actualiza la cantidad del articulo en la tabla articulos
+        query = ("UPDATE articulos SET cantidad = cantidad + %s WHERE id = %s")
+        data = (cantidad_carrito, id)
+        cursor.execute(query, data)
+        # Elimina el articulo del carrito
+        query = ("DELETE FROM carrito_compra WHERE id = %s")
+        data = (id)
+        cursor.execute(query, data)
+        cursor.execute("COMMIT")
+        result["status"] = "Articulo eliminado"
+    except mysql.connector.Error as err:
+        logging.error(err)
+        cursor.execute("ROLLBACK")
+        result["status"] = "Error al eliminar articulo"
+        status_code = 500
+    except Exception as err:
+        logging.error(err)
+        cursor.execute("ROLLBACK")
+        result["status"] = str(err)
+        status_code = 400
+    finally:
+        cursor.close()
+    return result, status_code
+
+def elimina_carrito(cnx):
+    status_code = 200
+    result = {}
+    cursor = cnx.cursor()
+    try:
+        cursor.execute("START TRANSACTION")
+        # update cantidades en articulos
+        query = ("SELECT id, cantidad FROM carrito_compra")
+        cursor.execute(query)
+        for (id, cantidad) in cursor:
+            query = ("UPDATE articulos SET cantidad = cantidad + %s WHERE id = %s")
+            data = (cantidad, id)
+            cursor.execute(query, data)
+        # elimina articulos del carrito
+        query = ("DELETE FROM carrito_compra")
+        cursor.execute(query)
+        cursor.execute("COMMIT")
+        result["status"] = "Carrito vaciado"
+    except mysql.connector.Error as err:
+        logging.error(err)
+        cursor.execute("ROLLBACK")
+        result["status"] = "Error al vaciar carrito"
+        status_code = 500
+    finally:
+        cursor.close()
+    return result, status_code
