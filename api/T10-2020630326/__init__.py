@@ -88,7 +88,12 @@ def captura_articulo(cnx, articulo):
             raise Exception("Precio no especificado")
         elif articulo.get("cantidad") is None or int(articulo.get("cantidad")) <= 0:
             raise Exception("Cantidad no especificada")
-        data = (articulo.get("nombre"), articulo.get("descripcion"), articulo.get("precio"), articulo.get("cantidad"), articulo.get("foto"))
+        foto = articulo.get("foto")
+        if foto is None or foto == "":
+            foto = None
+        else:
+            foto = base64.b64decode(foto)
+        data = (articulo.get("nombre"), articulo.get("descripcion"), articulo.get("precio"), articulo.get("cantidad"), foto)
         cursor.execute(query, data)
         cursor.execute("COMMIT")
         result["status"] = "Articulo capturado"
