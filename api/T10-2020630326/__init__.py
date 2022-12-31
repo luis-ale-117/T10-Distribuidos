@@ -43,7 +43,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 response,status_code = buscar_articulo(cnx, patron)
             elif action=="ver-carrito":
                 response,status_code = ver_carrito(cnx)
-            elif raction=="elimina-articulo":
+            elif action=="elimina-articulo":
                 id = int(req_json.get("id"))
                 response,status_code = elimina_articulo(cnx, id)
             elif action=="elimina-carrito":
@@ -210,13 +210,13 @@ def elimina_articulo(cnx, id):
         if cursor.fetchone() is None:
             raise Exception("Articulo no encontrado")
         # Revisa si el articulo existe en el carrito y obtiene la cantidad
-        query = ("SELECT id,cantidad FROM carrito_compra WHERE id = %s")
+        query = ("SELECT cantidad FROM carrito_compra WHERE id = %s")
         data = (id,)
         cursor.execute(query, data)
         articulo_carrito = cursor.fetchone()
         if articulo_carrito is None:
             raise Exception("Articulo no encontrado en el carrito")
-        cantidad_carrito = articulo_carrito[1]
+        cantidad_carrito = articulo_carrito[0]
         # Actualiza la cantidad del articulo en la tabla articulos
         query = ("UPDATE articulos SET cantidad = cantidad + %s WHERE id = %s")
         data = (cantidad_carrito, id)
