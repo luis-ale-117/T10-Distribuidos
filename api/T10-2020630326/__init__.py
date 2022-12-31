@@ -183,7 +183,7 @@ def ver_carrito(cnx):
     try:
         query = ("SELECT articulos.id,articulos.nombre,carrito_compra.cantidad,articulos.precio,articulos.foto FROM articulos INNER JOIN carrito_compra ON articulos.id = carrito_compra.id")
         cursor.execute(query)
-        for (id, nombre, precio, cantidad, foto) in cursor:
+        for (id, nombre, cantidad, precio, foto) in cursor:
             if foto is not None:
                 foto = base64.b64encode(foto).decode("utf-8")
             result.append({
