@@ -16,7 +16,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     if None in [DB_DATABASE,DB_USER,DB_HOST,DB_PORT,DB_PASSWORD]:
         return func.HttpResponse('{"message":"Undefined environment variables"}', status_code=500,mimetype="application/json")
-    resp = None
+    response = None
     status_code = 200
     try:
         cnx = mysql.connector.connect(
@@ -32,42 +32,44 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
         if req.method == "POST":
             if resp_body.get("action")=="captura-articulo":
                 articulo = req_body.get("articulo")
-                resp,status_code = captura_articulo(cnx, articulo)
+                response,status_code = captura_articulo(cnx, articulo)
             elif resp_body.get("action")=="compra-articulo":
                 id = req_body.get("id")
                 cantidad = req_body.get("cantidad")
-                resp,status_code = compra_articulo(cnx, id, cantidad)
+                response,status_code = compra_articulo(cnx, id, cantidad)
             elif resp_body.get("action")=="buscar-articulo":
                 patron = req_body.get("patron")
-                resp,status_code = buscar_articulo(cnx, patron)
+                response,status_code = buscar_articulo(cnx, patron)
             elif resp_body.get("action")=="ver-carrito":
-                resp,status_code = ver_carrito(cnx)
+                response,status_code = ver_carrito(cnx)
             elif rresp_body.get("action")=="elimina-articulo":
                 id = req_body.get("id")
-                resp,status_code = elimina_articulo(cnx, id)
+                response,status_code = elimina_articulo(cnx, id)
             elif resp_body.get("action")=="elimina-carrito":
-                resp,status_code = elimina_carrito(cnx)
+                response,status_code = elimina_carrito(cnx)
             else:
-                resp_body["status"] = "Accion invalida"
+                response = {}
+                response["status"] = "Accion no especificada"
                 status_code = 400
         else:
-            resp_body["status"] = "Metodo invalido"
+            response = {}
+            response["status"] = "Metodo no soportado"
             status_code = 400
 
-        resp = json.dumps(resp_body)
+        response = json.dumps(response)
     except mysql.connector.Error as err:
         if err.errno == errorcode.ER_ACCESS_DENIED_ERROR:
-            resp = '{"message":"Something is wrong with your user name or password"}'
+            response = '{"message":"Something is wrong with your user name or password"}'
         elif err.errno == errorcode.ER_BAD_DB_ERROR:
-            resp = '{"message":"Database does not exist"}'
+            response = '{"message":"Database does not exist"}'
         else:
-            resp = f'{{"message":"{err}"}}'
-        logging.error(resp)
+            response = f'{{"message":"{err}"}}'
+        logging.error(response)
         status_code = 500
     else:
         cnx.close()
 
-    return func.HttpResponse(resp, status_code=status_code, mimetype="application/json")
+    return func.HttpResponse(response, status_code=status_code, mimetype="application/json")
 
 def captura_articulo(cnx, articulo):
     status_code = 200
