@@ -28,24 +28,25 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             ssl_disabled=False
         )
         
-        req_body = req.get_json()
+        req_json = req.get_json()
+        action = req_json.get("action")
         if req.method == "POST":
-            if resp_body.get("action")=="captura-articulo":
-                articulo = req_body.get("articulo")
+            if action=="captura-articulo":
+                articulo = req_json.get("articulo")
                 response,status_code = captura_articulo(cnx, articulo)
-            elif resp_body.get("action")=="compra-articulo":
-                id = req_body.get("id")
-                cantidad = req_body.get("cantidad")
+            elif action=="compra-articulo":
+                id = req_json.get("id")
+                cantidad = req_json.get("cantidad")
                 response,status_code = compra_articulo(cnx, id, cantidad)
-            elif resp_body.get("action")=="buscar-articulo":
-                patron = req_body.get("patron")
+            elif action=="buscar-articulo":
+                patron = req_json.get("patron")
                 response,status_code = buscar_articulo(cnx, patron)
-            elif resp_body.get("action")=="ver-carrito":
+            elif action=="ver-carrito":
                 response,status_code = ver_carrito(cnx)
-            elif rresp_body.get("action")=="elimina-articulo":
-                id = req_body.get("id")
+            elif raction=="elimina-articulo":
+                id = req_json.get("id")
                 response,status_code = elimina_articulo(cnx, id)
-            elif resp_body.get("action")=="elimina-carrito":
+            elif action=="elimina-carrito":
                 response,status_code = elimina_carrito(cnx)
             else:
                 response = {}
