@@ -113,7 +113,7 @@ def compra_articulo(cnx, id, cantidad):
     try:
         cursor.execute("START TRANSACTION")
         query = ("SELECT cantidad FROM articulos WHERE id = %s")
-        data = (id)
+        data = tuple(id)
         cursor.execute(query, data)
         cantidad_articulo = cursor.fetchone()
         if cantidad_articulo is None:
