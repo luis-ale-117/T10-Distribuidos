@@ -35,8 +35,8 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 articulo = req_json.get("articulo")
                 response,status_code = captura_articulo(cnx, articulo)
             elif action=="compra-articulo":
-                id = req_json.get("id")
-                cantidad = req_json.get("cantidad")
+                id = int(req_json.get("id"))
+                cantidad = int(req_json.get("cantidad"))
                 response,status_code = compra_articulo(cnx, id, cantidad)
             elif action=="buscar-articulo":
                 patron = req_json.get("patron")
@@ -44,7 +44,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             elif action=="ver-carrito":
                 response,status_code = ver_carrito(cnx)
             elif raction=="elimina-articulo":
-                id = req_json.get("id")
+                id = int(req_json.get("id"))
                 response,status_code = elimina_articulo(cnx, id)
             elif action=="elimina-carrito":
                 response,status_code = elimina_carrito(cnx)
