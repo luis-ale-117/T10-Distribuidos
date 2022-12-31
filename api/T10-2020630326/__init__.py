@@ -131,7 +131,7 @@ def compra_articulo(cnx, id, cantidad):
     except mysql.connector.Error as err:
         logging.error(err)
         cursor.execute("ROLLBACK")
-        result["status"] = f"Error al agregar articulo al carrito. Error: {err} " + query + id
+        result["status"] = f"Error al agregar articulo al carrito. Error: {err} Query: {query} Id: {id} Cantidad: {cantidad}"
         status_code = 500
     except Exception as err:
         logging.error(err)
