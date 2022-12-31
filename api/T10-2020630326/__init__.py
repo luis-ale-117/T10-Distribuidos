@@ -213,10 +213,10 @@ def elimina_articulo(cnx, id):
         query = ("SELECT id,cantidad FROM carrito_compra WHERE id = %s")
         data = (id,)
         cursor.execute(query, data)
-        r = cursor.fetchone()
-        if r is None:
-            raise Exception("Articulo no encontrado en carrito")
-        _, cantidad_carrito = r
+        articulo_carrito = cursor.fetchone()
+        if articulo_carrito is None:
+            raise Exception("Articulo no encontrado en el carrito")
+        cantidad_carrito = articulo_carrito[1]
         # Actualiza la cantidad del articulo en la tabla articulos
         query = ("UPDATE articulos SET cantidad = cantidad + %s WHERE id = %s")
         data = (cantidad_carrito, id)
