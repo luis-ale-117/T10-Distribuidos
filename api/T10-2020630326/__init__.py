@@ -175,13 +175,12 @@ def ver_carrito(cnx):
     try:
         query = ("SELECT articulos.id,articulos.nombre,carrito_compra.cantidad,articulos.precio,articulos.foto FROM articulos INNER JOIN carrito_compra ON articulos.id = carrito_compra.id")
         cursor.execute(query)
-        for (id, nombre, descripcion, precio, cantidad, foto) in cursor:
+        for (id, nombre, precio, cantidad, foto) in cursor:
             result.append({
                 "id": id,
                 "nombre": nombre,
-                "descripcion": descripcion,
-                "precio": precio,
                 "cantidad": cantidad,
+                "precio": precio,
                 "foto": foto
             })
     except mysql.connector.Error as err:
@@ -189,6 +188,11 @@ def ver_carrito(cnx):
         result = {}
         result["status"] = f"Error al obtener carrito. Error: {err}"
         status_code = 500
+    except Exception as err:
+        logging.error(err)
+        result = {}
+        result["status"] = f"Error al obtener carrito. Error: {err}"
+        status_code = 400
     finally:
         cursor.close()
     return result, status_code
