@@ -4,6 +4,7 @@ import azure.functions as func
 import os
 import mysql.connector
 import json
+import base64
 
 
 def main(req: func.HttpRequest) -> func.HttpResponse:
@@ -151,6 +152,8 @@ def buscar_articulo(cnx, patron):
         data = (f"%{patron}%", f"%{patron}%")
         cursor.execute(query, data)
         for (id, nombre, descripcion, precio, cantidad, foto) in cursor:
+            if foto is not None:
+                foto = base64.b64encode(foto).decode("utf-8")
             result.append({
                 "id": id,
                 "nombre": nombre,
@@ -176,6 +179,8 @@ def ver_carrito(cnx):
         query = ("SELECT articulos.id,articulos.nombre,carrito_compra.cantidad,articulos.precio,articulos.foto FROM articulos INNER JOIN carrito_compra ON articulos.id = carrito_compra.id")
         cursor.execute(query)
         for (id, nombre, precio, cantidad, foto) in cursor:
+            if foto is not None:
+                foto = base64.b64encode(foto).decode("utf-8")
             result.append({
                 "id": id,
                 "nombre": nombre,
