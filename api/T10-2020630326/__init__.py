@@ -131,12 +131,12 @@ def compra_articulo(cnx, id, cantidad):
     except mysql.connector.Error as err:
         logging.error(err)
         cursor.execute("ROLLBACK")
-        result["status"] = f"Error al agregar articulo al carrito. Error: {err} Query: {query} Id: {id} Cantidad: {cantidad}"
+        result["status"] = f"Error al agregar articulo al carrito. Error: {err}"
         status_code = 500
     except Exception as err:
         logging.error(err)
         cursor.execute("ROLLBACK")
-        result["status"] = str(err)
+        result["status"] = f"Error al agregar articulo al carrito. Error: {err}"
         status_code = 400
     finally:
         cursor.close()
@@ -173,7 +173,7 @@ def ver_carrito(cnx):
     result = []
     cursor = cnx.cursor()
     try:
-        query = ("SELECT id,nombre,descripcion,precio,cantidad,foto FROM articulos WHERE id IN (SELECT id FROM carrito_compra)")
+        query = ("SELECT articulos.id,articulos.nombre,carrito_compra.cantidad,articulos.precio,articulos.foto FROM articulos INNER JOIN carrito_compra ON articulos.id = carrito_compra.id")
         cursor.execute(query)
         for (id, nombre, descripcion, precio, cantidad, foto) in cursor:
             result.append({
@@ -187,7 +187,7 @@ def ver_carrito(cnx):
     except mysql.connector.Error as err:
         logging.error(err)
         result = {}
-        result["status"] = "Error al obtener carrito"
+        result["status"] = f"Error al obtener carrito. Error: {err}"
         status_code = 500
     finally:
         cursor.close()
@@ -226,12 +226,12 @@ def elimina_articulo(cnx, id):
     except mysql.connector.Error as err:
         logging.error(err)
         cursor.execute("ROLLBACK")
-        result["status"] = "Error al eliminar articulo"
+        result["status"] = f"Error al eliminar articulo del carrito. Error: {err}"
         status_code = 500
     except Exception as err:
         logging.error(err)
         cursor.execute("ROLLBACK")
-        result["status"] = str(err)
+        result["status"] = f"Error al eliminar articulo del carrito. Error: {err}"
         status_code = 400
     finally:
         cursor.close()
@@ -258,7 +258,7 @@ def elimina_carrito(cnx):
     except mysql.connector.Error as err:
         logging.error(err)
         cursor.execute("ROLLBACK")
-        result["status"] = "Error al vaciar carrito"
+        result["status"] = f"Error al vaciar carrito. Error: {err}"
         status_code = 500
     finally:
         cursor.close()
