@@ -83,7 +83,7 @@ def captura_articulo(cnx, articulo):
             raise Exception("Nombre no especificado")
         elif articulo.get("descripcion") is None or articulo.get("descripcion") == "":
             raise Exception("Descripcion no especificada")
-        elif articulo.get("precio") is None or int(articulo.get("precio")) <= 0:
+        elif articulo.get("precio") is None or float(articulo.get("precio")) <= 0:
             raise Exception("Precio no especificado")
         elif articulo.get("cantidad") is None or int(articulo.get("cantidad")) <= 0:
             raise Exception("Cantidad no especificada")
