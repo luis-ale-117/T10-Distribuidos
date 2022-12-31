@@ -113,12 +113,12 @@ def compra_articulo(cnx, id, cantidad):
     try:
         cursor.execute("START TRANSACTION")
         query = ("SELECT cantidad FROM articulos WHERE id = %s")
-        data = tuple(id)
+        data = (id,)
         cursor.execute(query, data)
         cantidad_articulo = cursor.fetchone()
         if cantidad_articulo is None:
             raise Exception("Articulo no encontrado")
-        elif cantidad_articulo < cantidad:
+        elif cantidad_articulo[0] < cantidad:
             raise Exception("No hay suficiente cantidad en inventario")
         query = ("UPDATE articulos SET cantidad = cantidad - %s WHERE id = %s")
         data = (cantidad, id)
@@ -201,13 +201,13 @@ def elimina_articulo(cnx, id):
         cursor.execute("START TRANSACTION")
         # Revisa si el articulo existe en la tabla articulos
         query = ("SELECT id FROM articulos WHERE id = %s")
-        data = tuple(id)
+        data = (id,)
         cursor.execute(query, data)
         if cursor.fetchone() is None:
             raise Exception("Articulo no encontrado")
         # Revisa si el articulo existe en el carrito y obtiene la cantidad
         query = ("SELECT id,cantidad FROM carrito_compra WHERE id = %s")
-        data = tuple(id)
+        data = (id,)
         cursor.execute(query, data)
         r = cursor.fetchone()
         if r is None:
@@ -219,7 +219,7 @@ def elimina_articulo(cnx, id):
         cursor.execute(query, data)
         # Elimina el articulo del carrito
         query = ("DELETE FROM carrito_compra WHERE id = %s")
-        data = tuple(id)
+        data = (id,)
         cursor.execute(query, data)
         cursor.execute("COMMIT")
         result["status"] = "Articulo eliminado"
